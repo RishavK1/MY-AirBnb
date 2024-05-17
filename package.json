@@ -1,6 +1,4 @@
-{ "engines": {
-  "node": "18.17.1"
-},
+{ 
   "name": "airbnb2",
   "version": "1.0.0",
   "description": "",
