@@ -1,7 +1,8 @@
 // Import required packages and modules
-if(process.env.NODE_ENV != "production"){
+if (process.env.NODE_ENV !== "production") {
   require('dotenv').config();
 }
+
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -14,24 +15,22 @@ const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 const session = require("express-session");
 const MongoStore = require('connect-mongo');
-
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
-const { error } = require('console');
 
 // Define the MongoDB connection URL
-const dbUrl = process.env.ATLASDB_URL;
-
+const dbUrl = process.env.ATLASDB_URL || 'mongodb://localhost:27017/your-db-name';
 
 mongoose
-  .connect(dbUrl)
+  .connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log("Connected to MongoDB");
-    // Start the server and listen on port 2000
-    app.listen(2000, () => {
-      console.log(`App is listening on port 2000`);
+    // Start the server and listen on port from environment variable or default to 2000
+    const PORT = process.env.PORT || 2000;
+    app.listen(PORT, () => {
+      console.log(`App is listening on port ${PORT}`);
     });
   })
   .catch((err) => {
@@ -50,24 +49,23 @@ app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 
 // Serve static files from the public directory
-app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.static(path.join(__dirname, "public")));
 
+// Configure session store
 const store = MongoStore.create({
-  
-  mongoUrl : dbUrl,
-  crypto:{
-    secret : process.env.SECRET,
-  },
+  mongoUrl: dbUrl,
+  crypto: { secret: process.env.SECRET },
   touchAfter: 24 * 3600,
-})
+});
 
-store.on("error", ()=>{
-  console.log("ERROR IN MONGO SESSION STORE",error);
-})
-// Configuring Sessions
+store.on("error", (err) => {
+  console.error("ERROR IN MONGO SESSION STORE", err);
+});
+
+// Configure sessions
 const sessionOptions = {
   store,
-  secret:  process.env.SECRET,
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -77,8 +75,6 @@ const sessionOptions = {
   },
 };
 
-
-
 app.use(session(sessionOptions));
 app.use(flash());
 
@@ -86,7 +82,6 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
-
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
