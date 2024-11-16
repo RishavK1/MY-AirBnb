@@ -5,3 +5,20 @@
    <p class="alert-heading"><%=message%></p>
       </div>
 </div>
+
+<ul class="property-list">
+    <% properties.forEach(function(property) { %>
+        <li class="property-item">
+            <h2>
+                <%= property.title %>
+            </h2>
+            <img src="<%= property.images[0].url %>" alt="Property Image" class="property-image">
+            <p>
+                <%= property.description %>
+            </p>
+            <p>Location: <%= property.location.coordinates[1] %>, <%= property.location.coordinates[0] %>
+            </p>
+            <a href="/property/<%= property._id %>" class="btn btn-primary">View Details</a>
+        </li>
+        <% }) %>
+</ul>
