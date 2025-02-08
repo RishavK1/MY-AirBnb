@@ -35,6 +35,8 @@ router.route("/:id")
 )
 .delete(
   isLogedIn,
+    isOwner,
+
   wrapAsync(listingControllers.deleteListing)
 );  
 
