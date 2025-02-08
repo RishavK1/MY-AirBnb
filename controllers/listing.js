@@ -116,22 +116,17 @@ module.exports.updateListing = async (req, res) => {
 
 // Delete a listing
 module.exports.deleteListing = async (req, res) => {
-  let { id } = req.params; // Extract the listing ID from the request parameters
+    let { id } = req.params; // Get listing ID from params
 
-  // Optional: Ensure the user is logged in before allowing deletion
-  if (!req.isAuthenticated()) {
-    req.flash("error", "You must be logged in to delete a listing!");
-    return res.redirect("/listings");
-  }
+    let deletedListing = await Listing.findByIdAndDelete(id); // Delete the listing
 
-  let deletedListing = await Listing.findByIdAndDelete(id); // Find the listing by ID and delete it
+    if (!deletedListing) {
+        req.flash("error", "Listing not found!");
+        return res.redirect("/listings");
+    }
 
-  if (!deletedListing) {
-    req.flash("error", "Listing not found!");
-    return res.redirect("/listings");
-  }
-
-  req.flash("success", "Listing Deleted!"); // Flash a success message
-  res.redirect("/listings"); // Redirect to the listings page after deletion
+    req.flash("success", "Listing Deleted!"); // Flash success message
+    res.redirect("/listings"); // Redirect after deletion
 };
+
 
